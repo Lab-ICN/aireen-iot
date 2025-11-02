@@ -40,7 +40,9 @@ void setup() {
 
     mqtt.begin();
     mqtt.setCallback(messageCallback);
-    mqtt.subscribe(MQTT_TOPIC); // adjust topic as needed in future
+    mqtt.reconnect();
+    mqtt.subscribe(MQTT_TOPIC "ldr"); // adjust topic as needed in future
+    mqtt.subscribe(MQTT_TOPIC "tds"); // adjust topic as needed in future
 
     gravityTds.setPin(TDS_PIN);
     gravityTds.setAref(3.3);
@@ -57,16 +59,9 @@ void loop() {
     ldrVoltage = ldr.readVoltage();
     isLdrBright = ldr.isBright();
 
-    JsonDocument doc;
-    doc["tds"] = tdsValue;
-    doc["ldr"] = ldrValue;
-    char buffer[128];
-    serializeJson(doc, buffer);
-
-    Serial.println(buffer);
-    mqtt.publish(MQTT_TOPIC, buffer);
+    mqtt.publish((MQTT_TOPIC "ldr"), String(ldrValue).c_str());
+    mqtt.publish((MQTT_TOPIC "tds"), String(tdsValue).c_str());
 
     mqtt.loop();
-
     delay(5000);
 }

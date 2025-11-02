@@ -17,6 +17,8 @@ public:
 
     void loop();
 
+    void reconnect();
+
     bool publish(const char *topic, const char *payload);
 
     bool subscribe(const char *topic);
@@ -24,8 +26,6 @@ public:
     void setCallback(MQTT_CALLBACK_SIGNATURE);
 
 private:
-    void reconnect();
-
     const char *_server;
     int _port;
     const char *_clientId;
