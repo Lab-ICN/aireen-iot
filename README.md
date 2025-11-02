@@ -29,6 +29,10 @@ The table below lists the default ESP32 pin assignments as defined in `include/c
 | GPIO35    | LDR sensor secondary pin                |
 | GPIO36    | TDS sensor signal pin                   |
 
+## Software Dependencies
+This code is using some third party libraries provided by Arduino, such as follows.
+- `PubSubClient.h` for MQTT client implementation  
+
 ## Future Works
 - [x] Interfacing LDR sensor
 - [x] Interfacing TDS sensor
