@@ -16,78 +16,68 @@ int ldrValue = 0;
 int ldrVoltage = 0;
 bool isLdrBright = false;
 
-unsigned long previousMillis = 0;
-const unsigned long interval = 5000;
-
-void messageCallback(char *topic, byte *payload, unsigned int length) {
-    Serial.print("[MQTT] Message on ");
-    Serial.print(topic);
-    Serial.print(": ");
-
-    String message;
-    for (unsigned int i = 0; i < length; i++) {
-        message += (char) payload[i];
-    }
-    Serial.println(message);
-
-    if (message.equalsIgnoreCase("ping")) {
-        mqtt.publish((MQTT_TOPIC "cmd"), "pong");
-        Serial.println("[MQTT] Replied with pong");
-    }
-}
+const uint64_t SLEEP_DURATION_SEC = 5;
 
 void setup() {
     Serial.begin(115200);
+    delay(1000);
 
+    Serial.println("\n=== Booting from Deep Sleep ===");
+
+    Serial.print("[WiFi] Connecting");
     WiFi.begin(WIFI_SSID, WIFI_PASS);
-    while (WiFi.status() != WL_CONNECTED) {
+    int retry = 0;
+    while (WiFi.status() != WL_CONNECTED && retry < 20) {
         delay(500);
         Serial.print(".");
+        retry++;
     }
 
-    Serial.println("\nWiFi connected");
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("\n[WiFi] Failed to connect, going back to sleep");
+        esp_deep_sleep(SLEEP_DURATION_SEC * 1000000ULL);
+    }
+
+    Serial.println("\n[WiFi] Connected!");
 
     mqtt.begin();
-    mqtt.setCallback(messageCallback);
-    mqtt.reconnect();
-    mqtt.subscribe(MQTT_TOPIC "cmd");
-    Serial.println("[MQTT] Subscribed to all subtopics");
+    Serial.print("[MQTT] Connecting...");
+    mqtt.loop();
+    Serial.println(" connected!");
 
     gravityTds.setPin(TDS_PIN);
     gravityTds.setAref(3.3);
     gravityTds.setAdcRange(4096);
     gravityTds.begin();
+
+    gravityTds.setTemperature(temperature);
+    gravityTds.update();
+    tdsValue = gravityTds.getTdsValue();
+
+    ldrValue = ldr.readRaw();
+    ldrVoltage = ldr.readVoltage();
+    isLdrBright = ldr.isBright();
+
+    mqtt.publish((MQTT_TOPIC "sensors/ldr"), String(ldrValue).c_str());
+    mqtt.publish((MQTT_TOPIC "sensors/tds"), String(tdsValue).c_str());
+
+    mqtt.publish(MQTT_TOPIC "system/heap", String(ESP.getFreeHeap()).c_str());
+    mqtt.publish(MQTT_TOPIC "system/rssi", String(WiFi.RSSI()).c_str());
+
+    Serial.printf("[DATA] LDR: %d | TDS: %.2f\n", ldrValue, tdsValue);
+
+    unsigned long start = millis();
+    while (millis() - start < 500) {
+        mqtt.loop();
+        delay(10);
+    }
+
+    Serial.println("[SLEEP] Disconnecting WiFi...");
+    WiFi.disconnect(true);
+
+    Serial.printf("[SLEEP] Entering deep sleep for %llu seconds...\n", SLEEP_DURATION_SEC);
+    esp_deep_sleep(SLEEP_DURATION_SEC * 1000000ULL);
 }
 
 void loop() {
-    mqtt.loop();
-
-    unsigned long currentMillis = millis();
-    if (currentMillis - previousMillis >= interval) {
-        previousMillis = currentMillis;
-
-        gravityTds.setTemperature(temperature);
-        gravityTds.update();
-        tdsValue = gravityTds.getTdsValue();
-
-        ldrValue = ldr.readRaw();
-        ldrVoltage = ldr.readVoltage();
-        isLdrBright = ldr.isBright();
-
-        mqtt.publish((MQTT_TOPIC "sensors/ldr"), String(ldrValue).c_str());
-        mqtt.publish((MQTT_TOPIC "sensors/tds"), String(tdsValue).c_str());
-
-        mqtt.publish(MQTT_TOPIC "system/uptime", String(millis() / 1000).c_str());
-        mqtt.publish(MQTT_TOPIC "system/heap", String(ESP.getFreeHeap()).c_str());
-        mqtt.publish(MQTT_TOPIC "system/rssi", String(WiFi.RSSI()).c_str());
-
-        Serial.print("[DATA] LDR: ");
-        Serial.print(ldrValue);
-        Serial.print(" | TDS: ");
-        Serial.println(tdsValue);
-
-        delay(250);
-        esp_sleep_enable_timer_wakeup(5 * 1000000ULL);
-        esp_light_sleep_start();
-    }
 }
