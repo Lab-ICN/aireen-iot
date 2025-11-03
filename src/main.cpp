@@ -5,6 +5,7 @@
 #include <ldr.h>
 #include <mqtt_client.h>
 #include <WiFi.h>
+#include "esp_sleep.h"
 
 GravityTDS gravityTds;
 LDR ldr(LDR_PIN, LDR_THRESHOLD, LDR_REFERENCE);
@@ -76,7 +77,7 @@ void loop() {
         mqtt.publish((MQTT_TOPIC "sensors/ldr"), String(ldrValue).c_str());
         mqtt.publish((MQTT_TOPIC "sensors/tds"), String(tdsValue).c_str());
 
-        mqtt.publish(MQTT_TOPIC "system/uptime", String(millis()/1000).c_str());
+        mqtt.publish(MQTT_TOPIC "system/uptime", String(millis() / 1000).c_str());
         mqtt.publish(MQTT_TOPIC "system/heap", String(ESP.getFreeHeap()).c_str());
         mqtt.publish(MQTT_TOPIC "system/rssi", String(WiFi.RSSI()).c_str());
 
@@ -84,5 +85,9 @@ void loop() {
         Serial.print(ldrValue);
         Serial.print(" | TDS: ");
         Serial.println(tdsValue);
+
+        delay(250);
+        esp_sleep_enable_timer_wakeup(5 * 1000000ULL);
+        esp_light_sleep_start();
     }
 }
