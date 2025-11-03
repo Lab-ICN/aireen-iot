@@ -39,5 +39,7 @@ This code is using some third party libraries provided by Arduino, such as follo
 - [ ] Interfacing Analog pH meter
 - [ ] Integrating relay control for pumps and other actuators
 
-## Known Issues
-- [ ] LDR sensor readings may be unreliable in low-light environments, potentially due to unsuitable resistor selection or calibration issues.
+## References
+1. https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/sleep_modes.html
+2. https://wiki.dfrobot.com/gravity__analog_tds_sensor___meter_for_arduino_sku__sen0244
+3. https://www.instructables.com/Interfacing-Photoresistor-With-ESP32/
