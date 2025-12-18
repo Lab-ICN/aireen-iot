@@ -17,7 +17,7 @@
 #include "WProgram.h"
 #endif
 
-#include "ph_meter_tds.h"
+#include "ph_meter.h"
 #include <EEPROM.h>
 
 #define EEPROM_write(address, p) {int i = 0; byte *pp = (byte*)&(p);for(; i < sizeof(p); i++) EEPROM.write(address+i, pp[i]);}
