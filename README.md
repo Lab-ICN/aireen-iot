@@ -37,7 +37,7 @@ This code is using some third party libraries provided by Arduino, such as follo
 - [x] Interfacing LDR sensor
 - [x] Interfacing TDS sensor
 - [x] Implementing MQTT-based data publishing to a remote server
-- [ ] Interfacing Analog pH meter
+- [x] Interfacing Analog pH meter
 - [ ] Integrating relay control for pumps and other actuators
 
 ## References
