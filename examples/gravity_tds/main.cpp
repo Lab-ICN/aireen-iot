@@ -14,7 +14,7 @@ void setup()
     Serial.begin(115200);
     gravityTds.setPin(TDS_PIN);
     gravityTds.setAref(TDS_AREF);
-    gravityTds.setAdcRange(TDS_ADC_RANGE);
+    gravityTds.setAdcRange(ADC_RANGE);
     gravityTds.begin();
 }
 

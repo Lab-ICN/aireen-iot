@@ -13,8 +13,9 @@
 #define PH_PIN 36
 
 // hardware constants
+#define ADC_RANGE 4096  // 4096 for 12-bit ADC
+
 #define TDS_AREF 3.3        // reference voltage on ADC, default 3.3V on ESP32
-#define TDS_ADC_RANGE 4096  // 4096 for 12-bit ADC
 #define LDR_REFERENCE 5.0
 
 // environmental constants
