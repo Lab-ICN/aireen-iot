@@ -1,5 +1,5 @@
 /*!
- * @file DFRobot_PH_Test.h
+* @file DFRobot_PH_Test.h
  * @brief This is the sample code for Gravity: Analog pH Sensor / Meter Kit V2, SKU:SEN0161-V2.
  * @n In order to guarantee precision, a temperature sensor such as DS18B20 is needed, to execute automatic temperature compensation.
  * @n You can send commands in the serial monitor to execute the calibration.
@@ -16,7 +16,7 @@
  * @url https://github.com/DFRobot/DFRobot_PH
  */
 
-#include <ph_meter_tds.h>
+#include <ph_meter.h>
 #include <EEPROM.h>
 #include "config.h"
 
@@ -25,7 +25,8 @@ DFRobot_PH ph;
 
 void setup()
 {
-    Serial.begin(115200);  
+    EEPROM.begin(32);
+    Serial.begin(115200);
     ph.begin();
 }
 
@@ -35,7 +36,7 @@ void loop()
     if(millis()-timepoint>1000U){                  //time interval: 1s
         timepoint = millis();
         //temperature = readTemperature();         // read your temperature sensor to execute temperature compensation
-        voltage = analogRead(PH_PIN)/1024.0*5000;  // read the voltage
+        voltage = analogRead(PH_PIN) * 3300.0 / 4095.0;
         phValue = ph.readPH(voltage,temperature);  // convert voltage to pH with temperature compensation
         Serial.print("temperature:");
         Serial.print(temperature,1);
@@ -47,5 +48,6 @@ void loop()
 
 float readTemperature()
 {
-  //add your code here to get the temperature from your temperature sensor
+    //add your code here to get the temperature from your temperature sensor
+    return 25.0;
 }
